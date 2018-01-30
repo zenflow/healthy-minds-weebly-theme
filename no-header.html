@@ -21,6 +21,17 @@
               }
               target.appendChild(element);
           };
+          app.appendNewElementAsync = function (target, tagName, props) {
+              return new Promise(function (resolve, reject) {
+                  app.appendNewElement(target, tagName, props, function (error) {
+                      if (error){
+                          reject(error);
+                      } else {
+                          resolve();
+                      }
+                  })
+              })
+          };
 
           // -- public properties ---
           app.isDev = window.document.location.hostname === 'localhost';
@@ -29,15 +40,10 @@
 
           // --- initialization ---
           if (app.isDev) {
-              app.appendNewElement(window.document.head, 'link', {
-                  rel: 'stylesheet/less',
-                  type: 'text/css',
-                  href: 'styles/main.less'
-              });
-              app.appendNewElement(window.document.head, 'script', {
-                  type: 'text/javascript',
-                  src: 'https://unpkg.com/less@2.7.3/dist/less.js'
-              });
+              Promise.all([
+                  enableStyles(),
+                  enableScripts()
+              ]).catch(console.error);
           }
 
           // --- private methods ---
@@ -48,6 +54,36 @@
           function getLangFromCookie() {
               var match = window.document.cookie.match(/\blanguage=([a-z]);/i);
               return match && match[1];
+          }
+          function enableStyles() {
+              return Promise.all([
+                  app.appendNewElementAsync(window.document.head, 'link', {
+                      rel: 'stylesheet/less',
+                      type: 'text/css',
+                      href: 'styles/main.less'
+                  }),
+                  app.appendNewElementAsync(window.document.head, 'script', {
+                      type: 'text/javascript',
+                      src: 'https://unpkg.com/less@2.7.3/dist/less.js'
+                  })
+              ]);
+          }
+
+          function enableScripts() {
+              return app.appendNewElementAsync(window.document.head, 'script', {
+                  type: 'text/javascript',
+                  src: 'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'
+              }).then(function () {
+                  return app.appendNewElementAsync(window.document.head, 'script', {
+                      type: 'text/javascript',
+                      src: 'assets/plugins.js'
+                  });
+              }).then(function () {
+                  return app.appendNewElementAsync(window.document.head, 'script', {
+                      type: 'text/javascript',
+                      src: 'assets/custom.js'
+                  });
+              });
           }
       })()
   </script>
@@ -82,43 +118,8 @@
   </div>
 
   <div class="nav mobile-nav">{menu}</div>
+  <script type="text/javascript" src="/files/theme/plugins.js"></script>
+  <script type="text/javascript" src="/files/theme/custom.js"></script>
   <div style='display:none'>{title}</div>
-
-  <script type="text/javascript">
-      (function () {
-          if (app.isDev) {
-              app.appendNewElement(window.document.body, 'script', {
-                  type: 'text/javascript',
-                  src: 'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'
-              }, function (error) {
-                  if (error) {
-                      return console.error(error);
-                  }
-                  appendNextScripts();
-              });
-          } else {
-              appendNextScripts();
-          }
-
-          function appendNextScripts() {
-              app.appendNewElement(window.document.body, 'script', {
-                  type: 'text/javascript',
-                  src: (app.isDev ? 'assets/' : '/files/theme/') + 'plugins.js'
-              }, function (error) {
-                  if (error) {
-                      return console.error(error);
-                  }
-                  app.appendNewElement(window.document.body, 'script', {
-                      type: 'text/javascript',
-                      src: (app.isDev ? 'assets/' : '/files/theme/') + 'custom.js'
-                  }, function (error) {
-                      if (error) {
-                          return console.error(error);
-                      }
-                  });
-              });
-          }
-      })();
-  </script>
 </body>
 </html>
