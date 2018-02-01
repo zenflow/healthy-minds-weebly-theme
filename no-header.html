@@ -6,32 +6,7 @@
 
   <script type="text/javascript">
       (function () {
-          app = {};
-
-          // --- public methods ---
-          app.appendNewElement = function (target, tagName, props, cb) {
-              var element = Object.assign(window.document.createElement(tagName), props);
-              if (cb) {
-                  element.onload = function () {
-                      cb(null);
-                  };
-                  element.onerror = function (error) {
-                      cb(error);
-                  };
-              }
-              target.appendChild(element);
-          };
-          app.appendNewElementAsync = function (target, tagName, props) {
-              return new Promise(function (resolve, reject) {
-                  app.appendNewElement(target, tagName, props, function (error) {
-                      if (error){
-                          reject(error);
-                      } else {
-                          resolve();
-                      }
-                  })
-              })
-          };
+          var app = window.app = {};
 
           // -- public properties ---
           app.isDev = window.document.location.hostname === 'localhost';
@@ -40,10 +15,7 @@
 
           // --- initialization ---
           if (app.isDev) {
-              Promise.all([
-                  enableStyles(),
-                  enableScripts()
-              ]).catch(console.error);
+              enableStyles().catch(console.error);
           }
 
           // --- private methods ---
@@ -57,33 +29,31 @@
           }
           function enableStyles() {
               return Promise.all([
-                  app.appendNewElementAsync(window.document.head, 'link', {
+                  appendNewElementAsync(window.document.head, 'link', {
                       rel: 'stylesheet/less',
                       type: 'text/css',
                       href: 'styles/main.less'
                   }),
-                  app.appendNewElementAsync(window.document.head, 'script', {
+                  appendNewElementAsync(window.document.head, 'script', {
                       type: 'text/javascript',
                       src: 'https://unpkg.com/less@2.7.3/dist/less.js'
                   })
               ]);
           }
-
-          function enableScripts() {
-              return app.appendNewElementAsync(window.document.head, 'script', {
-                  type: 'text/javascript',
-                  src: 'https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'
-              }).then(function () {
-                  return app.appendNewElementAsync(window.document.body, 'script', {
-                      type: 'text/javascript',
-                      src: 'assets/plugins.js'
-                  });
-              }).then(function () {
-                  return app.appendNewElementAsync(window.document.body, 'script', {
-                      type: 'text/javascript',
-                      src: 'assets/custom.js'
-                  });
-              });
+          function appendNewElementAsync (target, tagName, props) {
+              return new Promise(function (resolve, reject) {
+                  appendNewElement(target, tagName, props, function (error) {
+                      error ? reject(error) : resolve();
+                  })
+              })
+          }
+          function appendNewElement (target, tagName, props, cb) {
+              var element = Object.assign(window.document.createElement(tagName), props);
+              if (cb) {
+                  element.onload = function () { cb(null); };
+                  element.onerror = function (error) { cb(error); };
+              }
+              target.appendChild(element);
           }
       })()
   </script>
@@ -128,12 +98,14 @@
 
   <div class="nav mobile-nav">{menu}</div>
   <script type="text/javascript">
-      // dev-time and run-time (not design-time)
-      if (typeof app !== 'undefined') {
-          $('[data-lang-' + app.lang + ']').each(function () {
-              this.textContent = this.dataset['lang' + app.lang[0].toUpperCase() + app.lang.slice(1)];
-          })
-      }
+      (function(){
+          if (window.app) {
+              var datasetKey = 'lang' + window.app.lang[0].toUpperCase() + window.app.lang.slice(1);
+              $('[data-lang-' + window.app.lang + ']').each(function () {
+                  this.textContent = this.dataset[datasetKey];
+              });
+          }
+      })();
   </script>
   <script type="text/javascript" src="/files/theme/plugins.js"></script>
   <script type="text/javascript" src="/files/theme/custom.js"></script>
