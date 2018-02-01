@@ -978,7 +978,8 @@ h2#wsite-com-product-title {
     top: 0;
     left: 0;
     z-index: 9;
-    height: 50px;
+    // height: 50px;
+    height: 88px;
     // padding: 10px 0;
     padding: 0;
     border-bottom: 2px solid #f7f7f7;
@@ -989,7 +990,7 @@ h2#wsite-com-product-title {
     display: table;
     overflow-y: hidden;
     max-width: calc(~'100vw - 100px');
-    height: 30px;
+    // height: 30px;
     margin: 0 auto;
 
     .wsite-logo {
@@ -1061,7 +1062,7 @@ h2#wsite-com-product-title {
   /* Nav */
   .mobile-nav {
     position: fixed;
-    top: 50px;
+    top: 88px;
     left: 0;
     z-index: 9;
     display: block;
@@ -1227,7 +1228,8 @@ h2#wsite-com-product-title {
   }
   /* No Header Page */
   .no-header-page .content-wrap {
-    margin-top: 55px;
+    // margin-top: 55px;
+    margin-top: 93px;
     border-top: none;
   }
   /* Blog */
@@ -1472,17 +1474,34 @@ h2#wsite-com-product-title {
 .usfq_logo img {
   width: 360px;
 }
-
-.cento-header .logo h1 {
+.cento-header > .container > .logo > h1 {
   font-size: 48px;
 }
-
-.cento-header .logo h2 {
+.cento-header > .container > .logo > h2 {
   font-size: 18px;
 }
 
 @media screen and (max-width: 767px) {
-  .cento-header .logo h2 {
+  .usfq_logo {
+    background-color: red;
+    padding: 2px 2px 2px 52px;
+  }
+  .usfq_logo img {
+    width: 240px;
+  }
+  .cento-header > .container {
+    height: 45px;
+    position: relative;
+  }
+  .cento-header > .container > .logo {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0 0 0 50px;
+  }
+  .cento-header > .container > .logo > h2 {
     font-size: 11px;
+    margin-bottom: 0;
   }
 }
