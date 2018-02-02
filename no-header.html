@@ -5,55 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <script type="text/javascript">
+      // initialization for local development
       (function () {
-          var app = window.app = {};
-
-          // -- public properties ---
-          app.isDev = window.document.location.hostname === 'localhost';
-          app.query = window.document.location.search.slice(1).split('&');
-          app.lang = getLangFromQuery() || getLangFromCookie() || 'en';
-
-          // --- initialization ---
-          if (app.isDev) {
+          if (window.document.location.hostname === 'localhost') {
               enableStyles().catch(console.error);
-          }
 
-          // --- private methods ---
-          function getLangFromQuery() {
-              var param = app.query.find(function (param) {return param.indexOf('lang') === 0});
-              return param && param.split('=')[1];
-          }
-          function getLangFromCookie() {
-              var match = window.document.cookie.match(/\blanguage=([a-z]);/i);
-              return match && match[1];
-          }
-          function enableStyles() {
-              return Promise.all([
-                  appendNewElementAsync(window.document.head, 'link', {
-                      rel: 'stylesheet/less',
-                      type: 'text/css',
-                      href: 'styles/main.less'
-                  }),
-                  appendNewElementAsync(window.document.head, 'script', {
-                      type: 'text/javascript',
-                      src: 'https://unpkg.com/less@2.7.3/dist/less.js'
-                  })
-              ]);
-          }
-          function appendNewElementAsync (target, tagName, props) {
-              return new Promise(function (resolve, reject) {
-                  appendNewElement(target, tagName, props, function (error) {
-                      error ? reject(error) : resolve();
-                  })
-              })
-          }
-          function appendNewElement (target, tagName, props, cb) {
-              var element = Object.assign(window.document.createElement(tagName), props);
-              if (cb) {
-                  element.onload = function () { cb(null); };
-                  element.onerror = function (error) { cb(error); };
+              function enableStyles() {
+                  return Promise.all([
+                      appendNewElementAsync(window.document.head, 'link', {
+                          rel: 'stylesheet/less',
+                          type: 'text/css',
+                          href: 'styles/main.less'
+                      }),
+                      appendNewElementAsync(window.document.head, 'script', {
+                          type: 'text/javascript',
+                          src: 'https://unpkg.com/less@2.7.3/dist/less.js'
+                      })
+                  ]);
               }
-              target.appendChild(element);
+              function appendNewElementAsync (target, tagName, props) {
+                  return new Promise(function (resolve, reject) {
+                      appendNewElement(target, tagName, props, function (error) {
+                          error ? reject(error) : resolve();
+                      })
+                  })
+              }
+              function appendNewElement (target, tagName, props, cb) {
+                  var element = Object.assign(window.document.createElement(tagName), props);
+                  if (cb) {
+                      element.onload = function () { cb(null); };
+                      element.onerror = function (error) { cb(error); };
+                  }
+                  target.appendChild(element);
+              }
           }
       })()
   </script>
@@ -99,10 +83,12 @@
 
   <div class="nav mobile-nav">{menu}</div>
   <script type="text/javascript">
+      // Translate text in `data-lang-*` elements
       (function(){
-          if (window.app) {
-              var datasetKey = 'lang' + window.app.lang[0].toUpperCase() + window.app.lang.slice(1);
-              $('[data-lang-' + window.app.lang + ']').each(function () {
+          if (window.ML) {
+              var lang = window.ML.display_language;
+              var datasetKey = 'lang' + lang[0].toUpperCase() + lang.slice(1);
+              $('[data-lang-' + lang + ']').each(function () {
                   this.textContent = this.dataset[datasetKey];
               });
           }
